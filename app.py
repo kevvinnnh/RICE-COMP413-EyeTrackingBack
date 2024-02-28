@@ -12,6 +12,10 @@ client = MongoClient(uri)
 # Set up the database
 db = client.get_database("your_database_name")
 
+@app.route('/')
+def hello_world():
+  return 'Hello, World!'
+
 @app.route('/survey', methods=['POST'])
 def save_survey_data():
     survey_data = request.json  # Assuming survey data is sent in JSON format
@@ -19,4 +23,4 @@ def save_survey_data():
     return 'Survey data saved successfully', 201
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5001)  # Custom port 5001
