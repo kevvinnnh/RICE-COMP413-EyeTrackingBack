@@ -1,17 +1,22 @@
 from flask import Flask, jsonify, request
 from pymongo import MongoClient
+
 app = Flask(__name__)
-client = MongoClient('mongodb://localhost:27017/')
-db = client['your_database_name']
 
-@app.route('/users', methods=['GET'])
-def get_users():
-    users = list(db.users.find())
-    return jsonify(users), 200
+# MongoDB connection URI
+uri = "mongodb+srv://Project5-Sophia:<password>@project5.bpvocwv.mongodb.net/?retryWrites=true&w=majority&appName=Project5"
 
-@app.route('/users', methods=['POST'])
-def add_user():
-    user_data = request.json
-    db.users.insert_one(user_data)
-    return 'User added successfully', 201
+# Create a MongoClient object
+client = MongoClient(uri)
 
+# Set up the database
+db = client.get_database("your_database_name")
+
+@app.route('/survey', methods=['POST'])
+def save_survey_data():
+    survey_data = request.json  # Assuming survey data is sent in JSON format
+    db.surveys.insert_one(survey_data)
+    return 'Survey data saved successfully', 201
+
+if __name__ == '__main__':
+    app.run(debug=True)
