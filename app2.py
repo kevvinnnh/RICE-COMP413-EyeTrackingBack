@@ -76,5 +76,28 @@ def test_atlas_connection():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+@app.route('/api/responses', methods=['POST'])
+@cross_origin()
+def receive_responses():
+    try:
+        responses_data = request.json
+        print(responses_data)
+        # Eventually, we can store the default survey in the database & it would act as a created survey
+        answers = ['Benign keratosis-like lesions','Melanocytic nevi','Benign keratosis-like lesions']
+        count=0
+        # Function that grades hard coded default survey skin lesion questions 
+        for i in range(len(answers)):
+            index = str(i)
+            if responses_data[index] == answers[i]:
+                count+=1
+
+        # Save the received responses to the database or perform any necessary processing
+        # collection = db.get_collection("Questions")
+        # inserted_ids = collection.insert_many(responses_data).inserted_ids
+
+        return jsonify({"status": "success", "message": "Responses received and stored successfully"}), 201
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
