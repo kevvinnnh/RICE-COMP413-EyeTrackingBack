@@ -2,6 +2,7 @@ import json
 from flask import Flask, jsonify, request
 from pymongo import MongoClient
 from flask_cors import CORS, cross_origin
+from schemas import Participant, Response, UserForm, Creator, Form
 import random
 import datetime
 import string
@@ -69,7 +70,7 @@ def register_user():
                 "password": hashed_password
             })
         # Optionally can add handling for other roles ( admin?) here
-        #need to make sure schema definition aligns 
+        #need to make sure schema definition aligns
         return jsonify({
             "message": "User registered successfully",
             "email": email,
