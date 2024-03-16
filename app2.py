@@ -99,5 +99,15 @@ def receive_responses():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+#new route to get all forms' information and contents
+@app.route('/api/forms', methods=['GET'])
+@cross_origin()
+def get_all_forms():
+    try:
+        forms = list(db.Forms.find({}, {"_id": 0}))
+        return jsonify({"status": "success", "forms": forms}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
