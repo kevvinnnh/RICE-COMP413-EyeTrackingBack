@@ -29,7 +29,6 @@ def hello_world():
 ROLES = ["participant", "creator", "admin"]
 
 # Collection for storing user data
-users_collection = db.get_collection("users")
 
 @app.route('/register', methods=['POST'])
 @cross_origin()
@@ -56,14 +55,21 @@ def register_user():
         # Generate a unique user ID
         user_id = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
 
-        # Store user data in the database
-        users_collection.insert_one({
-            "email": email,
-            "role": role,
-            "password": hashed_password,
-            "user_id": user_id
-        })
-
+        # Store user data in the respective collection based on role
+        if role == "participant":
+            participants_collection.insert_one({
+                "email": email,
+                "userId": user_id,
+                "password": hashed_password
+            })
+        elif role == "creator":
+            creators_collection.insert_one({
+                "email": email,
+                "userId": user_id,
+                "password": hashed_password
+            })
+        # Optionally can add handling for other roles ( admin?) here
+        #need to make sure schema definition aligns 
         return jsonify({
             "message": "User registered successfully",
             "email": email,
@@ -73,6 +79,7 @@ def register_user():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 @app.route('/api/forms', methods=['POST'])
 @cross_origin()
