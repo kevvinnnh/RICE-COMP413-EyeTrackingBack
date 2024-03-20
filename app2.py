@@ -132,26 +132,26 @@ def get_questions():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-@app.route('/api/forms', methods=['GET'])
-@cross_origin()
-# this returns the questions to the frontend from the database
-def get_forms():
-    url = "https://us-east-2.aws.data.mongodb-api.com/app/data-bpzpl/endpoint/data/v1/action/find"
-    payload = json.dumps({
-        "collection": "Forms",
-        "database": "EpiDerm",
-        "dataSource": "Project5",
-    })
-    headers = {
-      'Content-Type': 'application/json',
-      'Access-Control-Request-Headers': '*',
-      'api-key': 'yJAaJITqsyGpxeQ3gEZIsip2M6o0iWp6jpdddoGJY4WZ2PgPVEaGRqgRjY2SjZJ2',
-    }
-    # try:
-    #     collection = db.get_collection("Questions")
-    #     questions = list(collection.find())
-    response = requests.request("POST", url, headers=headers, data=payload)
-    return jsonify({"status": "success", "forms": forms}), 200
+# @app.route('/api/forms', methods=['GET'])
+# @cross_origin()
+# # this returns the questions to the frontend from the database
+# def get_forms():
+#     url = "https://us-east-2.aws.data.mongodb-api.com/app/data-bpzpl/endpoint/data/v1/action/find"
+#     payload = json.dumps({
+#         "collection": "Forms",
+#         "database": "EpiDerm",
+#         "dataSource": "Project5",
+#     })
+#     headers = {
+#       'Content-Type': 'application/json',
+#       'Access-Control-Request-Headers': '*',
+#       'api-key': 'yJAaJITqsyGpxeQ3gEZIsip2M6o0iWp6jpdddoGJY4WZ2PgPVEaGRqgRjY2SjZJ2',
+#     }
+#     # try:
+#     #     collection = db.get_collection("Questions")
+#     #     questions = list(collection.find())
+#     response = requests.request("POST", url, headers=headers, data=payload)
+#     return jsonify({"status": "success", "forms": forms}), 200
     # except Exception as e:
     #     return jsonify({"status": "error", "message": str(e)}), 500
 

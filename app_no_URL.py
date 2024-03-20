@@ -7,6 +7,7 @@ import random
 import datetime
 import string
 import bcrypt
+from bson import json_util
 
 app = Flask(__name__)
 CORS(app)
@@ -141,20 +142,24 @@ def test_atlas_connection():
 def receive_responses():
     try:
         responses_data = request.json
+        print(responses_data)
         answers = ['Benign keratosis-like lesions','Melanocytic nevi','Benign keratosis-like lesions']
         count=0
         response_dict = {}
+        print("collection 0")
         for i in range(len(answers)):
             index = str(i)
-            response_dict[i] = responses_data[index]
+            response_dict[index] = responses_data[index]
             if responses_data[index] == answers[i]:
                 count+=1
-
+        print("collection 1")
         collection = db.get_collection("Responses")
+        print("collection 2")
         inserted_ids = collection.insert_one({"user_id": 0,"form_id": 0, "role": responses_data["role"], "years_of_experience": responses_data["experienceLevel"],
                                             "age": responses_data["age"],"vision_impairment": responses_data["vision"], "gender": responses_data["gender"],"correctness_score": count,
                                             "eye_tracking_data": [], "responses": response_dict}).inserted_id
-
+        print(inserted_ids)
+        print("collection 2")
         return jsonify({"status": "success", "message": "Responses received and stored successfully"}), 201
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
@@ -164,8 +169,9 @@ def receive_responses():
 @cross_origin()
 def get_all_forms():
     try:
-        forms = list(db.get_collection("Forms").find({}, {"_id": 0}))
-        return jsonify({"status": "success", "forms": forms}), 200
+        forms = list(db.get_collection("Forms").find({}))
+        data = json.loads(json_util.dumps(forms))
+        return jsonify({"status": "success", "forms": data}), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
