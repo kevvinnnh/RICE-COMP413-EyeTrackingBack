@@ -35,3 +35,6 @@ class Form(Document):
     #form_id = ObjectIdField()
     responses = ListField(DictField())
     # add correct answers later
+    #add questions 
+    questions = ListField(DictField())
+

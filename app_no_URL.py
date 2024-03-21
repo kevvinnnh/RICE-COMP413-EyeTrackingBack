@@ -88,18 +88,15 @@ def create_form():
     try:
         form_data = request.json
         
-        # Generate a unique alphanumeric formID
-        formID = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
-        
         # Add a dateCreated field with the current date and time
         dateCreated = datetime.datetime.now().isoformat()
         
         # Add the generated fields to the form data
-        form_data['formID'] = formID
         form_data['dateCreated'] = dateCreated
 
         collection = db.get_collection("Forms")
         inserted_id = collection.insert_one(form_data).inserted_id
+        print(inserted_id)
 
         return jsonify({"status": "success", "message": "Form added successfully", "insertedId": str(inserted_id)}), 201
     except Exception as e:
