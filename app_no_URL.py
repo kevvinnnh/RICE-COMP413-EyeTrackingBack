@@ -172,5 +172,16 @@ def get_all_forms():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+
+@app.route('/api/forms', methods=['DELETE'])
+@cross_origin()
+def delete_all_forms():
+    try:
+        collection = db.get_collection("Forms")
+        collection.delete_many({})
+        return jsonify({"status": "success", "message": "All forms deleted successfully"}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
