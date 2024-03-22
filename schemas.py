@@ -7,7 +7,7 @@ class Participant(Document):
 class Response(Document):
     user_id = ObjectIdField()
     form_id = ObjectIdField()
-    #Enforces that each response is different 
+    #Enforces that each response is different
     #response_id = ObjectIdField()
     role = StringField()
     years_of_experience = IntField()
@@ -35,6 +35,17 @@ class Form(Document):
     #form_id = ObjectIdField()
     responses = ListField(DictField())
     # add correct answers later
-    #add questions 
+    #add questions
     questions = ListField(DictField())
 
+
+
+class Form(Document):
+    #form_id = ObjectIdField()
+    responses = ListField(DictField())
+    # add correct answers later
+    #add questions
+    questions = ListField(DictField())
+    question_text = StringField(required=True)
+    question_type = StringField(required=True)
+    correct_answer = StringField()
