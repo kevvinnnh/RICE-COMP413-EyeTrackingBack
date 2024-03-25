@@ -2,11 +2,12 @@ import json
 from flask import Flask, jsonify, request
 from pymongo import MongoClient
 from flask_cors import CORS, cross_origin
-from schemas import Participant, Response, UserForm, Creator, Form
+from schemas import Participant, Response, UserForm, Creator, Form, Question
 import random
 import datetime
 import string
 import bcrypt
+from gridfs import GridFS
 from bson import json_util
 
 app = Flask(__name__)
@@ -18,8 +19,12 @@ uri = "mongodb+srv://Project5-Sophia:koch@project5.bpvocwv.mongodb.net/?retryWri
 # Create a MongoClient object
 client = MongoClient(uri)
 
+
+
 # Set up the database
 db = client.get_database("EpiDerm")
+fs = GridFS(db)
+
 
 # this is for testing
 @app.route('/')
@@ -87,10 +92,10 @@ def register_user():
 def create_form():
     try:
         form_data = request.json
-        
+
         # Add a dateCreated field with the current date and time
         dateCreated = datetime.datetime.now().isoformat()
-        
+
         # Add the generated fields to the form data
         form_data['dateCreated'] = dateCreated
 
@@ -161,6 +166,57 @@ def receive_responses():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+# route for getting the responses and grading their form
+@app.route('/api/get_responses', methods=['POST'])
+def get_responses():
+    try:
+        # Get the responses data from the request JSON
+        responses_data = request.json
+
+        # Retrieve the questions for the form from the database
+        form_id = responses_data.get('form_id')
+        form_name = responses_data.get('form_name')
+        form_questions = Question.objects(form_name = form_name)
+
+        # Initialize correctness score and a dictionary to store responses
+        correctness_score = 0
+        user_responses = {}
+
+        # Loop through each question in the form
+        for question in form_questions:
+            question_id = str(question.question_id)
+            correct_answer = question.correct_answer
+
+            # Check if the user's response matches the correct answer
+            user_answer = responses_data.get(question_id)
+            user_responses[question_id] = user_answer
+
+            if user_answer == correct_answer:
+                correctness_score += 1
+
+        # Calculate the percentage correctness score
+        total_questions = len(form_questions)
+        percentage_score = (correctness_score / total_questions) * 100
+
+        # Store the response in the database
+        new_response = Response(
+            user_id=responses_data.get('user_id'),
+            form_id=form_id,
+            role=responses_data.get('role'),
+            years_of_experience=responses_data.get('years_of_experience'),
+            age=responses_data.get('age'),
+            gender=responses_data.get('gender'),
+            vision_impairment=responses_data.get('vision_impairment'),
+            correctness_score=percentage_score,
+            responses=user_responses
+        )
+        new_response.save()
+
+        return jsonify({"status": "success", "message": "Responses checked and stored successfully"}), 201
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 #new route to get all forms' information and contents
 @app.route('/api/forms', methods=['GET'])
 @cross_origin()
@@ -180,6 +236,43 @@ def delete_all_forms():
         collection = db.get_collection("Forms")
         collection.delete_many({})
         return jsonify({"status": "success", "message": "All forms deleted successfully"}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+#  this route is for creating the questions and adding images to the respective images
+@app.route('/api/create_question', methods=['POST'])
+def create_question():
+    try:
+        # Parse request data
+        question_text = request.form['question_text']
+        question_type = request.form['question_type']
+        options = request.form.getlist('options')  # If applicable
+        correct_answer = request.form['correct_answer']
+
+        # Check if image is included in the request
+        if 'image' in request.files:
+            image_file = request.files['image']
+            # Save the image to GridFS
+            image_id = fs.put(image_file, filename=image_file.filename)
+            # Construct the URL to retrieve the uploaded image
+            image_url = f"/api/get_image/{image_id}"
+        else:
+            image_url = None
+
+        # Save the question data to MongoDB
+        question_data = {
+            "question_text": question_text,
+            "question_type": question_type,
+            "options": options,
+            "correct_answer": correct_answer,
+            "image_url": image_url
+        }
+        # Save question data to your questions collection
+        # Your code to save the question_data to MongoDB goes here
+
+        return jsonify({"status": "success", "message": "Question created successfully", "question_data": question_data}), 201
+
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 

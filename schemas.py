@@ -1,4 +1,4 @@
-from mongoengine import Document, StringField, ListField, IntField, DateTimeField, ObjectIdField, DictField
+from mongoengine import Document, EmbeddedDocument, ReferenceField, StringField, ListField, IntField, DateTimeField, ObjectIdField, DictField
 
 class Participant(Document):
     email = StringField(required=True)
@@ -38,6 +38,9 @@ class Form(Document):
     #add questions
     questions = ListField(DictField())
 
+    # we could replace questions with this
+    #questions = ListField(EmbeddedDocumentField(Question))
+
 
 
 class Form(Document):
@@ -49,3 +52,17 @@ class Form(Document):
     question_text = StringField(required=True)
     question_type = StringField(required=True)
     correct_answer = StringField()
+
+# possible question schema
+class Question(EmbeddedDocument):
+    # question_id = ObjectIdField()
+    question_text = StringField(required=True)
+    question_type = StringField(required=True)
+    options = ListField(StringField())  # If applicable, for multiple choice questions
+    correct_answer = StringField()
+    # could also possibly add a classification for where the skin lesion is located
+
+class Form(Document):
+    form_name = StringField(required=True)
+    date_created = DateTimeField(required=True)
+    questions = ListField(ReferenceField(Question))
