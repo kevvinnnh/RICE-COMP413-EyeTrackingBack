@@ -1,4 +1,4 @@
-from mongoengine import Document, EmbeddedDocument, ReferenceField, StringField, ListField, IntField, DateTimeField, ObjectIdField, DictField
+from mongoengine import Document, EmbeddedDocument, ReferenceField, StringField, URLField, ListField, IntField, DateTimeField, ObjectIdField, DictField
 
 class Participant(Document):
     email = StringField(required=True)
@@ -54,12 +54,13 @@ class Form(Document):
     correct_answer = StringField()
 
 # possible question schema
-class Question(EmbeddedDocument):
+class Question(Document):
     # question_id = ObjectIdField()
     question_text = StringField(required=True)
     question_type = StringField(required=True)
     options = ListField(StringField())  # If applicable, for multiple choice questions
     correct_answer = StringField()
+    image_url = URLField()  # Assuming image is stored with a URL
     # could also possibly add a classification for where the skin lesion is located
 
 class Form(Document):
